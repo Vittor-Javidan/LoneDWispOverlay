@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta chaset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>LoneDWispBot</title>
+
+		<link rel="stylesheet" href="stylesheets/general.css" />
+		<link rel="stylesheet" href="stylesheets/chatbox.css" />
+		<link rel="stylesheet" href="stylesheets/alertBox.css" />
+		<link rel="stylesheet" href="stylesheets/webcam.css" />
+
+	</head>
+	<body id="body">
+
+		<div class="widget" id="alertBox-widget" >
+			<div class="reference-div">
+				<iframe
+					id="alertBox"
+					src="https://streamlabs.com/alert-box/v3/E0C96F76A22543A96CCE?follows=1&subscriptions=1&resubs=1&donations=1&hosts=1&bits=1&raids=1&sponsored_campaign=1"
+					title="alertBox"
+				></iframe>
+				<div id="front-div-alertBox">Alert Box</div>
+			</div>
+		</div>
+		
+		<div class="widget" id="chatbox-widget" >
+			<div class="reference-div">
+				<iframe
+					id="chatbox"
+					src="https://streamelements.com/overlay/63a75ea6045cce8ff28aa9b1/hoIkpXDjTpIgxzMaweBbq3p54IT_yXUaLlpQnPTM1ru7OPyO"
+					title="chatBox"
+				></iframe>
+				<div id="front-div-chatbox"></div>
+			</div>
+		</div>
+
+		<div class="widget" id="webcam-widget">
+			<div class="inverted r300" id="webcam-container">
+				<video class="r300" autoplay="true" id="webcam"></video>
+			</div>
+			<div id="webcam-button-container">
+				<div>
+					<button class="webcam-button" id="invert-button">Invert</button>
+					<button class="webcam-button" id="hide-button">Hide</button>
+				</div>
+				<div>
+					<button class="webcam-button ajust-button" id="increase-button">+</button>
+					<button class="webcam-button ajust-button" id="decrease-button">-</button>
+				</div>
+			</div>
+		</div>
+
+		<!-- Webcam -->
+		<script src="scripts/webcam/webcamAccess.js"></script>
+		<script src="scripts/webcam/webcamButtons.js"></script>
+
+		<!-- Draggable -->
+		<script src="scripts/draggable.js"></script>
+	</body>
+</html>
