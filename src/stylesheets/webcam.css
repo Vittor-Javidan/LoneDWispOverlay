@@ -29,6 +29,7 @@
     
     background: var(--buttom-background);
     border: 2px solid var(--webcam-border);
+    cursor: pointer;
 
     transition: 0.5s linear;
 }

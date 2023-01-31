@@ -23,7 +23,6 @@ html {
 
 
 .widget {
-    cursor: pointer;
     width: fit-content;
     height: fit-content;
     position: absolute;
