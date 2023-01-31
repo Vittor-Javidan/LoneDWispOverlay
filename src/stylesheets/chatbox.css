@@ -7,38 +7,39 @@
 
 #chatbox-widget {
     top: 400px;
+    height: 404px;
+    width: 554px;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 #chatbox-widget .reference-div {
-    height: 250px;
-    width: 420px;
+    height: 400px;
+    width: 550px;
     position: relative;
-
-    background: var(--chat-background);
-    border: 2px solid var(--chat-border);
-    border-radius: 10px;
-
-    backdrop-filter: blur(6px);
-    box-shadow: -3px 3px 5px var(--chat-shadow);
-
-    transition: 0.2s linear;
+    
+    overflow: hidden;
 }
 
 #chatbox-widget iframe {
-    height: 250px;
-    width: 420px;
-    padding-left: 10px;
+    height: 400px;
+    width: 550px;
     position: absolute;
 }
 
 #chatbox-widget #front-div-chatbox {
-    height: 250px;
-    width: 420px;
+    height: 400px;
+    width: 550px;
     position: absolute;
+    opacity: 0;
 }
 
-#chatbox-widget .reference-div:hover {
+#chatbox-widget #front-div-chatbox:hover {
     border: 2px solid var(--chat-border-hover);
-    border-radius: 10px;
-    transition: 0.2s linear;
+    opacity: 1;
+    text-align: center;
+    font-size: 40px;
+    color: var(--chat-border-hover);
 }

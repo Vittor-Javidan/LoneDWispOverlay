@@ -31,7 +31,7 @@ export default function createWindow() {
             transparent: true,
 
             icon: `../assets/images/Lone_Wisp_Logo_1024.png`,
-            title: `Lone D Wisp Chatbot`,
+            title: `LoneDWisp Overlay`,
         })
     
         /**
