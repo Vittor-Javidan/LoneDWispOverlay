@@ -8,16 +8,17 @@
 
 #chatbox-widget {
     top: 400px;
-    height: 439px;
-    width: 554px;
-
     display: flex;
     align-items: center;
     flex-direction: column;
 }
 
+#chatbox-widget:hover {
+    border: 2px solid var(--chat-border-hover);
+}
+
 #chatbox-widget .reference-div {
-    height: 400px;
+    height: 250px;
     width: 550px;
     position: relative;
     cursor: pointer;
@@ -25,7 +26,7 @@
 }
 
 #chatbox {
-    height: 400px;
+    height: 250px;
     width: 550px;
     position: absolute;
     opacity: 1;
@@ -38,7 +39,7 @@
 }
 
 #chatbox-widget #front-div-chatbox {
-    height: 400px;
+    height: 250px;
     width: 550px;
     position: absolute;
     opacity: 0;
@@ -53,8 +54,7 @@
 }
 
 #chatbox-hide-button {
-    margin-top: 5px;
-    width: 200px;
+    width: 250px;
 
     padding: 5px;
 

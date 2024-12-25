@@ -31,12 +31,12 @@ function makeDraggable(child) {
 
 	function onMouseDown(e) {
 
-        // set the isDragging flag to true
-        isDragging = true
+		// set the isDragging flag to true
+		isDragging = true
 
-        // store the current position of the element
-        currentX = e.clientX
-        currentY = e.clientY
+		// store the current position of the element
+		currentX = e.clientX
+		currentY = e.clientY
 	}
 
 	function onMouseUp(e) {
@@ -48,17 +48,17 @@ function makeDraggable(child) {
 		// only move the element if the isDragging flag is set to true
 		if (isDragging) {
 
-            // calculate the offset of the element
-            const offsetX = e.clientX - currentX
-            const offsetY = e.clientY - currentY
+			// calculate the offset of the element
+			const offsetX = e.clientX - currentX
+			const offsetY = e.clientY - currentY
 
-            // set the child new position
-            child.style.top = `${child.offsetTop + offsetY}px`
-            child.style.left = `${child.offsetLeft + offsetX}px`
+			// set the child new position
+			child.style.top = `${child.offsetTop + offsetY}px`
+			child.style.left = `${child.offsetLeft + offsetX}px`
 
-            // store the current position of the element
-            currentX = e.clientX
-            currentY = e.clientY
-        }
+			// store the current position of the element
+			currentX = e.clientX
+			currentY = e.clientY
+		}
 	}
 }

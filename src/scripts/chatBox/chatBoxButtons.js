@@ -3,12 +3,12 @@ const chatContainer = document.getElementById('chatbox')
 
 chatBoxHideButton.addEventListener('click', () => {
 
-    chatContainer.classList.toggle('no-chat')
-    
+  chatContainer.classList.toggle('no-chat')
+  
+  if(chatBoxHideButton.innerText === 'Hide') {
+    chatBoxHideButton.innerText = 'Show'
+    return
+  }
 
-    if(chatBoxHideButton.innerText === 'Hide') {
-        chatBoxHideButton.innerText = 'Show'
-        return
-    }
-    chatBoxHideButton.innerText = 'Hide'
+  chatBoxHideButton.innerText = 'Hide'
 });
