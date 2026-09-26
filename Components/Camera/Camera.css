@@ -1,0 +1,81 @@
+.camera-widget {
+  top: 0;
+  left: 0;
+  touch-action: none;
+}
+
+.camera__frame {
+  overflow: hidden;
+  border-radius: 50%;
+  box-shadow: 0 5px 15px var(--widget-shadow);
+  transition: transform 0.5s linear, opacity 0.5s linear;
+}
+
+.camera__frame.is-inverted {
+  transform: scaleX(-1);
+}
+
+.camera__frame.is-hidden {
+  opacity: 0;
+}
+
+.camera__video {
+  display: block;
+  border: 2px solid var(--widget-border);
+  border-radius: 50%;
+  background: var(--button-background);
+  clip-path: circle(50%);
+  object-fit: cover;
+  transition: opacity 0.5s linear, border-color 0.2s ease;
+}
+
+.camera__video:hover {
+  border-color: var(--widget-border-hover);
+}
+
+.camera__controls {
+  min-width: 200px;
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+
+.camera-widget:hover .camera__controls,
+.camera-widget:focus-within .camera__controls {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.camera__control-row {
+  display: flex;
+  justify-content: space-around;
+  gap: 8px;
+}
+
+.camera__button {
+  min-width: 64px;
+  padding: 5px 8px;
+  border: 2px solid var(--widget-border);
+  border-radius: 5px;
+  background: var(--button-background);
+  color: var(--button-foreground);
+  transition: border-color 0.2s ease, opacity 0.2s ease;
+}
+
+.camera__button:hover:not(:disabled) {
+  border-color: var(--widget-border-hover);
+}
+
+.camera__button:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.camera__size-button {
+  width: 40px;
+  min-width: 40px;
+}
