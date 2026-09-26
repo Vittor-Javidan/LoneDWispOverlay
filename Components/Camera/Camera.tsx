@@ -1,16 +1,135 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, type PointerEvent } from 'react'
 import { useDraggable } from '../../src/hooks/useDraggable'
 import './Camera.css'
 
-const sizes = [150, 200, 250, 300, 350, 400, 450, 500]
+type ResizeCursor = 'default' | 'ew-resize' | 'ns-resize' | 'nwse-resize' | 'nesw-resize'
+
+type ResizeTarget = {
+  directionX: number
+  directionY: number
+  cursor: Exclude<ResizeCursor, 'default'>
+}
+
+type ResizeStart = {
+  pointerId: number
+  clientX: number
+  clientY: number
+  directionX: number
+  directionY: number
+  widgetLeft: number
+  widgetTop: number
+  size: number
+}
+
+const resizeHitArea = 12
+const minimumSize = 50
+
+const getResizeTarget = (clientX: number, clientY: number, bounds: DOMRect): ResizeTarget | null => {
+  const offsetX = clientX - (bounds.left + bounds.width / 2)
+  const offsetY = clientY - (bounds.top + bounds.height / 2)
+  const distance = Math.hypot(offsetX, offsetY)
+  const radius = Math.min(bounds.width, bounds.height) / 2
+
+  if (distance === 0 || Math.abs(distance - radius) > resizeHitArea) return null
+
+  const directionX = offsetX / distance
+  const directionY = offsetY / distance
+  const cursor = Math.abs(directionX) > Math.abs(directionY) * 2
+    ? 'ew-resize'
+    : Math.abs(directionY) > Math.abs(directionX) * 2
+      ? 'ns-resize'
+      : directionX * directionY > 0
+        ? 'nwse-resize'
+        : 'nesw-resize'
+
+  return { directionX, directionY, cursor }
+}
 
 export default function Camera() {
   const videoRef = useRef<HTMLVideoElement>(null)
   const dragHandlers = useDraggable<HTMLElement>()
-  const [sizeIndex, setSizeIndex] = useState(3)
+  const resizeStart = useRef<ResizeStart | null>(null)
+  const [size, setSize] = useState(300)
+  const [resizeCursor, setResizeCursor] = useState<ResizeCursor>('default')
   const [isInverted, setIsInverted] = useState(true)
   const [isHidden, setIsHidden] = useState(false)
-  const size = sizes[sizeIndex]
+
+  const beginResize = (event: PointerEvent<HTMLDivElement>) => {
+    if (event.button !== 0) return
+
+    const widget = dragHandlers.ref.current
+    if (!widget) return
+
+    const resizeArea = event.currentTarget
+    const resizeBounds = resizeArea.getBoundingClientRect()
+    const resizeTarget = getResizeTarget(event.clientX, event.clientY, resizeBounds)
+
+    if (!resizeTarget) {
+      const offsetX = event.clientX - (resizeBounds.left + resizeBounds.width / 2)
+      const offsetY = event.clientY - (resizeBounds.top + resizeBounds.height / 2)
+      const distance = Math.hypot(offsetX, offsetY)
+      const radius = Math.min(resizeBounds.width, resizeBounds.height) / 2
+
+      if (distance > radius + resizeHitArea) event.stopPropagation()
+      return
+    }
+
+    const widgetBounds = widget.getBoundingClientRect()
+    resizeStart.current = {
+      pointerId: event.pointerId,
+      clientX: event.clientX,
+      clientY: event.clientY,
+      directionX: resizeTarget.directionX,
+      directionY: resizeTarget.directionY,
+      widgetLeft: widgetBounds.left,
+      widgetTop: widgetBounds.top,
+      size: resizeBounds.width,
+    }
+
+    event.preventDefault()
+    event.stopPropagation()
+    event.currentTarget.setPointerCapture(event.pointerId)
+  }
+
+  const handlePointerMove = (event: PointerEvent<HTMLDivElement>) => {
+    const start = resizeStart.current
+    if (!start) {
+      const resizeTarget = getResizeTarget(
+        event.clientX,
+        event.clientY,
+        event.currentTarget.getBoundingClientRect(),
+      )
+      setResizeCursor(resizeTarget?.cursor ?? 'default')
+      return
+    }
+
+    const widget = dragHandlers.ref.current
+    if (!start || !widget || start.pointerId !== event.pointerId) return
+
+    const deltaX = event.clientX - start.clientX
+    const deltaY = event.clientY - start.clientY
+    const radialDelta = deltaX * start.directionX + deltaY * start.directionY
+    const nextSize = Math.max(minimumSize, start.size + radialDelta)
+    const offsetX = ((start.size - nextSize) * (1 - start.directionX)) / 2
+    const offsetY = ((start.size - nextSize) * (1 - start.directionY)) / 2
+
+    widget.style.left = `${start.widgetLeft + offsetX}px`
+    widget.style.top = `${start.widgetTop + offsetY}px`
+
+    setSize(nextSize)
+  }
+
+  const finishResize = (event: PointerEvent<HTMLDivElement>) => {
+    if (resizeStart.current?.pointerId === event.pointerId) {
+      resizeStart.current = null
+      const resizeTarget = getResizeTarget(
+        event.clientX,
+        event.clientY,
+        event.currentTarget.getBoundingClientRect(),
+      )
+      setResizeCursor(resizeTarget?.cursor ?? 'default')
+    }
+  }
 
   useEffect(() => {
     let stream: MediaStream | null = null
@@ -60,17 +179,24 @@ export default function Camera() {
   return (
     <section className="widget camera-widget" {...dragHandlers} aria-label="Camera">
       <div
-        className={`camera__frame${isInverted ? ' is-inverted' : ''}${isHidden ? ' is-hidden' : ''}`}
-        style={{ width: size, height: size }}
+        className="camera__resize-area"
+        style={{ width: size, height: size, cursor: resizeCursor }}
+        onPointerDown={beginResize}
+        onPointerMove={handlePointerMove}
+        onPointerUp={finishResize}
+        onPointerCancel={finishResize}
       >
-        <video
-          ref={videoRef}
-          className="camera__video"
-          autoPlay
-          playsInline
-          style={{ width: size, height: size }}
-          aria-label="Camera preview"
-        />
+        <div
+          className={`camera__frame${isInverted ? ' is-inverted' : ''}${isHidden ? ' is-hidden' : ''}`}
+        >
+          <video
+            ref={videoRef}
+            className="camera__video"
+            autoPlay
+            playsInline
+            aria-label="Camera preview"
+          />
+        </div>
       </div>
       <div className="camera__controls">
         <div className="camera__control-row">
@@ -89,26 +215,6 @@ export default function Camera() {
             onClick={() => setIsHidden((current) => !current)}
           >
             {isHidden ? 'Show' : 'Hide'}
-          </button>
-        </div>
-        <div className="camera__control-row">
-          <button
-            className="camera__button camera__size-button"
-            type="button"
-            aria-label="Increase camera size"
-            disabled={sizeIndex === sizes.length - 1}
-            onClick={() => setSizeIndex((current) => Math.min(current + 1, sizes.length - 1))}
-          >
-            +
-          </button>
-          <button
-            className="camera__button camera__size-button"
-            type="button"
-            aria-label="Decrease camera size"
-            disabled={sizeIndex === 0}
-            onClick={() => setSizeIndex((current) => Math.max(current - 1, 0))}
-          >
-            -
           </button>
         </div>
       </div>

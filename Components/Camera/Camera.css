@@ -5,6 +5,8 @@
 }
 
 .camera__frame {
+  width: 100%;
+  height: 100%;
   overflow: hidden;
   border-radius: 50%;
   box-shadow: 0 5px 15px var(--widget-shadow);
@@ -21,6 +23,8 @@
 
 .camera__video {
   display: block;
+  width: 100%;
+  height: 100%;
   border: 2px solid var(--widget-border);
   border-radius: 50%;
   background: var(--button-background);
@@ -75,7 +79,6 @@
   cursor: default;
 }
 
-.camera__size-button {
-  width: 40px;
-  min-width: 40px;
+.camera__resize-area {
+  position: relative;
 }
