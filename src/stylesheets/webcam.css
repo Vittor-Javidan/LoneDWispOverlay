@@ -22,12 +22,14 @@
 }
 
 #webcam-container.inverted {
-    transform: rotateY(180deg);
+    transform: scaleX(-1);
 }
 
 #webcam {
     background: var(--buttom-background);
     border: 2px solid var(--webcam-border);
+    border-radius: 50%;
+    clip-path: circle(50%);
     cursor: pointer;
 
     transition: 0.5s linear;
