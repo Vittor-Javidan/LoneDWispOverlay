@@ -1,36 +1,79 @@
-import { useState } from 'react'
+import { useCallback, useRef, useState } from 'react'
 import './Chatbox.css'
 
-import { useDraggable } from '../../src/hooks/useDraggable'
+import { useDraggable, type DraggableHandlers } from '../../src/hooks/useDraggable'
+import type { ChatboxPreferences, WidgetPosition } from '../OverlayWindow/OverlayPreferences'
 
 import { useChatboxUrl } from './useChatboxUrl'
 import { resizeDirections, useChatboxResize, type ChatboxResizeValues } from './useChatboxResize'
 
-export default function Chatbox() {
-  const dragHandlers = useDraggable<HTMLElement>()
+export default function Chatbox(props: {
+  preferences: ChatboxPreferences
+  onPreferencesChanged: (patch: Partial<ChatboxPreferences>) => void
+}) {
 
-  const [resizeValues       , setResizeValues       ] = useState<ChatboxResizeValues | null>(null)
-  const [chatboxUrl         , setChatboxUrl         ] = useState('')
-  const [isHidden           , setIsHidden           ] = useState(false)
-  const [contentScalePercent, setContentScalePercent] = useState(100)
+  const contentScale = props.preferences.contentScalePercent / 100
+  
+  const widgetRef = useRef<HTMLElement>(null)
+  const [dragHandlers, setDragHandlers] = useState<DraggableHandlers<HTMLElement> | null>(null)
+  const [resizeValues, setResizeValues] = useState<ChatboxResizeValues | null>(null)
+  const [chatboxUrl  , setChatboxUrl  ] = useState('')
 
-  const contentScale = contentScalePercent / 100
+  const handlePositionChange = useCallback((position: WidgetPosition) => {
+    props.onPreferencesChanged({ position })
+  }, [props.onPreferencesChanged])
+
+  const handleResizeComplete = useCallback((values: {
+    width: number
+    height: number
+    position: WidgetPosition
+  }) => {
+    props.onPreferencesChanged({
+      width: values.width,
+      height: values.height,
+      position: values.position,
+    })
+  }, [props.onPreferencesChanged])
+
 
   useChatboxUrl({ onUrlLoaded: setChatboxUrl })
 
   useChatboxResize({
-    widgetRef: dragHandlers.ref,
+    widgetRef,
+    initialFrameSize: {
+      width: props.preferences.width,
+      height: props.preferences.height,
+    },
     resizeCallback: setResizeValues,
+    onResizeComplete: handleResizeComplete,
+  })
+
+  useDraggable<HTMLElement>({
+    widgetRef,
+    position: props.preferences.position,
+    onPositionChange: handlePositionChange,
+    onDragHandlersChanged: setDragHandlers,
   })
 
   return (
-    <section className="widget chatbox-widget" {...dragHandlers} aria-label="Chatbox">
+    <section
+      ref={widgetRef}
+      className="widget chatbox-widget"
+      onPointerDown={dragHandlers?.onPointerDown}
+      onPointerMove={dragHandlers?.onPointerMove}
+      onPointerUp={dragHandlers?.onPointerUp}
+      onPointerCancel={dragHandlers?.onPointerCancel}
+      aria-label="Chatbox"
+    >
       <div
         className="chatbox__reference"
-        style={resizeValues?.frameSize}
+        style={resizeValues?.frameSize ?? {
+          width: props.preferences.width,
+          height: props.preferences.height,
+        }}
       >
         <iframe
-          className={`chatbox__frame${isHidden ? ' is-hidden' : ''}`}
+          className={`chatbox__frame${props.preferences.isHidden ? ' is-hidden' : ''}`}
           src={chatboxUrl || undefined}
           title="Chatbox"
           referrerPolicy="no-referrer"
@@ -59,10 +102,10 @@ export default function Chatbox() {
           <button
             className="chatbox__button chatbox__hide-button"
             type="button"
-            aria-pressed={isHidden}
-            onClick={() => setIsHidden((current) => !current)}
+            aria-pressed={props.preferences.isHidden}
+            onClick={() => props.onPreferencesChanged({ isHidden: !props.preferences.isHidden })}
           >
-            {isHidden ? 'Show' : 'Hide'}
+            {props.preferences.isHidden ? 'Show' : 'Hide'}
           </button>
         </div>
         <div className="chatbox__control-row">
@@ -70,8 +113,10 @@ export default function Chatbox() {
             className="chatbox__button chatbox__scale-button"
             type="button"
             aria-label="Increase chatbox content scale"
-            disabled={contentScalePercent === 200}
-            onClick={() => setContentScalePercent((current) => Math.min(current + 10, 200))}
+            disabled={props.preferences.contentScalePercent === 200}
+            onClick={() => props.onPreferencesChanged({
+              contentScalePercent: Math.min(props.preferences.contentScalePercent + 10, 200),
+            })}
           >
             +
           </button>
@@ -79,8 +124,10 @@ export default function Chatbox() {
             className="chatbox__button chatbox__scale-button"
             type="button"
             aria-label="Decrease chatbox content scale"
-            disabled={contentScalePercent === 50}
-            onClick={() => setContentScalePercent((current) => Math.max(current - 10, 50))}
+            disabled={props.preferences.contentScalePercent === 50}
+            onClick={() => props.onPreferencesChanged({
+              contentScalePercent: Math.max(props.preferences.contentScalePercent - 10, 50),
+            })}
           >
             -
           </button>

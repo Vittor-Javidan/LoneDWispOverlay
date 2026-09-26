@@ -1,14 +1,39 @@
 import { app, BrowserWindow, globalShortcut, ipcMain, Menu, screen, Tray } from 'electron'
-import { join } from 'node:path'
+import { promises as fs } from 'node:fs'
+import { dirname, join } from 'node:path'
 
 import { Service_Server_Camera } from '../Camera/Service_Server'
+import {
+	createDefaultOverlayPreferences,
+	normalizeOverlayPreferences,
+} from './OverlayPreferences'
 
 export class Service_Server_OverlayWindow {
 
   private static mainWindow: BrowserWindow | null = null
 	private static isClickThrough = false
 	private static isHoverHideEnabled = false
+	private static preferences = createDefaultOverlayPreferences()
+	private static preferencesFile = ''
+	private static preferencesWriteQueue: Promise<void> = Promise.resolve()
 	private static tray: Tray | null = null
+
+	static async loadPreferences(): Promise<void> {
+		this.preferencesFile = join(app.getPath('userData'), 'overlay-preferences.json')
+
+		try {
+			this.preferences = normalizeOverlayPreferences(
+				JSON.parse(await fs.readFile(this.preferencesFile, 'utf8')) as unknown,
+			)
+		} catch (error) {
+			if ((error as NodeJS.ErrnoException).code !== 'ENOENT') {
+				console.error('Could not load overlay preferences:', error)
+			}
+			this.preferences = createDefaultOverlayPreferences()
+		}
+
+		this.isHoverHideEnabled = this.preferences.isHoverHideEnabled
+	}
 
 	static async registerIntangibilityControls(): Promise<void> {
 
@@ -34,15 +59,10 @@ export class Service_Server_OverlayWindow {
 			this.setClickThrough(isClickThrough)
 		})
 		ipcMain.handle('overlay:get-click-through', () => this.isClickThrough)
-		ipcMain.handle('overlay:set-hover-hide-enabled', (_event, isEnabled: boolean) => {
-			if (typeof isEnabled !== 'boolean') {
-				throw new TypeError('isEnabled must be a boolean')
-			}
-
-			this.setHoverHideEnabled(isEnabled)
-		})
-		ipcMain.handle('overlay:get-hover-hide-enabled', () => this.isHoverHideEnabled)
-
+		ipcMain.handle('overlay:get-preferences', () => this.preferences)
+		ipcMain.handle('overlay:save-preferences', (_event, preferences: unknown) =>
+			this.savePreferences(preferences),
+		)
 		const shortcutRegistered = globalShortcut.register('Control+Shift+Alt+O', () => {
 			this.setClickThrough(false)
 		})
@@ -99,9 +119,19 @@ export class Service_Server_OverlayWindow {
 		window.webContents.send('overlay:click-through-changed', isClickThrough)
 	}
 
-	private static setHoverHideEnabled(isEnabled: boolean): void {
-		this.isHoverHideEnabled = isEnabled
-		this.updateIgnoreMouseEvents()
+	private static savePreferences(value: unknown): Promise<void> {
+		const preferences = normalizeOverlayPreferences(value)
+		const save = this.preferencesWriteQueue.then(async () => {
+			await fs.mkdir(dirname(this.preferencesFile), { recursive: true })
+			await fs.writeFile(this.preferencesFile, JSON.stringify(preferences, null, 2), 'utf8')
+
+			this.preferences = preferences
+			this.isHoverHideEnabled = preferences.isHoverHideEnabled
+			this.updateIgnoreMouseEvents()
+		})
+
+		this.preferencesWriteQueue = save.catch(() => undefined)
+		return save
 	}
 
 	private static updateIgnoreMouseEvents(): void {

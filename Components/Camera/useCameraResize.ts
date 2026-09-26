@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState, type PointerEvent, type RefObject } from 'react'
+import type { WidgetPosition } from '../OverlayWindow/OverlayPreferences'
 import { Service_Browser_Camera, type ResizeCursor } from './Service_Browser'
 
 type ResizeStart = {
@@ -24,11 +25,13 @@ export type CameraResizeValues = {
 
 export function useCameraResize(o: {
   widgetRef: RefObject<HTMLElement | null>
+  initialSize: number
   resizeCallback: (values: CameraResizeValues) => void
+  onResizeComplete: (values: { size: number; position: WidgetPosition }) => void
 }): void {
 
   const resizeStart = useRef<ResizeStart | null>(null)
-  const [size, setSize] = useState(300)
+  const [size        , setSize        ] = useState(o.initialSize)
   const [resizeCursor, setResizeCursor] = useState<ResizeCursor>('default')
 
   const beginResize = useCallback((event: PointerEvent<HTMLDivElement>) => {
@@ -100,13 +103,26 @@ export function useCameraResize(o: {
     if (resizeStart.current?.pointerId !== event.pointerId) return
 
     resizeStart.current = null
+    const widget = o.widgetRef.current
+    if (widget) {
+      const bounds = widget.getBoundingClientRect()
+      o.onResizeComplete({
+        size,
+        position: { left: bounds.left, top: bounds.top },
+      })
+    }
+
     const resizeTarget = Service_Browser_Camera.getResizeTarget(
       event.clientX,
       event.clientY,
       event.currentTarget.getBoundingClientRect(),
     )
     setResizeCursor(resizeTarget?.cursor ?? 'default')
-  }, [])
+  }, [size, o.onResizeComplete, o.widgetRef])
+
+  useEffect(() => {
+    setSize(o.initialSize)
+  }, [o.initialSize])
 
   useEffect(() => {
     o.resizeCallback({

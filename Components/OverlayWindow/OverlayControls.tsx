@@ -4,6 +4,7 @@ export default function OverlayControls(props: {
   isHoverHideEnabled: boolean
   onToggleHoverHide: () => void
   onMakeClickThrough: () => void
+  onResetWidgets: () => void
 }) {
   return (
     <div className="overlay-controls">
@@ -21,6 +22,13 @@ export default function OverlayControls(props: {
         onClick={props.onMakeClickThrough}
       >
         Tornar intangível
+      </button>
+      <button
+        className="overlay-controls__button"
+        type="button"
+        onClick={props.onResetWidgets}
+      >
+        Restaurar widgets
       </button>
     </div>
   )

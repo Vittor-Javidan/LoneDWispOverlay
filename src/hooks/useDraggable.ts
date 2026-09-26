@@ -1,4 +1,5 @@
-import { useRef, type PointerEvent } from 'react'
+import { useCallback, useLayoutEffect, useRef, type PointerEvent, type RefObject } from 'react'
+import type { WidgetPosition } from '../../Components/OverlayWindow/OverlayPreferences'
 
 type DragPosition = {
   pointerId: number
@@ -8,11 +9,30 @@ type DragPosition = {
   top: number
 }
 
-export function useDraggable<T extends HTMLElement>() {
-  const elementRef = useRef<T>(null)
+export type DraggableHandlers<T extends HTMLElement> = {
+  onPointerDown: (event: PointerEvent<T>) => void
+  onPointerMove: (event: PointerEvent<T>) => void
+  onPointerUp: (event: PointerEvent<T>) => void
+  onPointerCancel: (event: PointerEvent<T>) => void
+}
+
+export function useDraggable<T extends HTMLElement>(o: {
+  widgetRef: RefObject<T | null>
+  position: WidgetPosition
+  onPositionChange: (position: WidgetPosition) => void
+  onDragHandlersChanged: (handlers: DraggableHandlers<T>) => void
+}): void {
   const dragPosition = useRef<DragPosition | null>(null)
 
-  const onPointerDown = (event: PointerEvent<T>) => {
+  useLayoutEffect(() => {
+    const element = o.widgetRef.current
+    if (!element) return
+
+    element.style.left = `${o.position.left}px`
+    element.style.top = `${o.position.top}px`
+  }, [o.widgetRef, o.position.left, o.position.top])
+
+  const onPointerDown = useCallback((event: PointerEvent<T>) => {
     if (event.button !== 0) return
 
     const target = event.target
@@ -20,7 +40,7 @@ export function useDraggable<T extends HTMLElement>() {
       return
     }
 
-    const element = elementRef.current
+    const element = o.widgetRef.current
     if (!element) return
 
     const bounds = element.getBoundingClientRect()
@@ -33,28 +53,35 @@ export function useDraggable<T extends HTMLElement>() {
     }
     event.currentTarget.setPointerCapture(event.pointerId)
     event.preventDefault()
-  }
+  }, [o.widgetRef])
 
-  const onPointerMove = (event: PointerEvent<T>) => {
+  const onPointerMove = useCallback((event: PointerEvent<T>) => {
     const start = dragPosition.current
-    const element = elementRef.current
+    const element = o.widgetRef.current
     if (!start || !element || start.pointerId !== event.pointerId) return
 
     element.style.left = `${start.left + event.clientX - start.clientX}px`
     element.style.top = `${start.top + event.clientY - start.clientY}px`
-  }
+  }, [o.widgetRef])
 
-  const onPointerUp = (event: PointerEvent<T>) => {
-    if (dragPosition.current?.pointerId === event.pointerId) {
-      dragPosition.current = null
+  const onPointerUp = useCallback((event: PointerEvent<T>) => {
+    if (dragPosition.current?.pointerId !== event.pointerId) return
+
+    const element = o.widgetRef.current
+    if (element) {
+      const bounds = element.getBoundingClientRect()
+      o.onPositionChange({ left: bounds.left, top: bounds.top })
     }
-  }
 
-  return {
-    ref: elementRef,
-    onPointerDown,
-    onPointerMove,
-    onPointerUp,
-    onPointerCancel: onPointerUp,
-  }
+    dragPosition.current = null
+  }, [o.onPositionChange, o.widgetRef])
+
+  useLayoutEffect(() => {
+    o.onDragHandlersChanged({
+      onPointerDown,
+      onPointerMove,
+      onPointerUp,
+      onPointerCancel: onPointerUp,
+    })
+  }, [o.onDragHandlersChanged, onPointerDown, onPointerMove, onPointerUp])
 }

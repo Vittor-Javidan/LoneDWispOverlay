@@ -4,7 +4,10 @@
   top: 12px;
   right: 12px;
   display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
   gap: 8px;
+  max-width: calc(100% - 24px);
 }
 
 .overlay-controls__button {

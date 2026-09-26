@@ -41,10 +41,16 @@ export type ChatboxResizeValues = {
 
 export function useChatboxResize(o: {
   widgetRef: RefObject<HTMLElement | null>
+  initialFrameSize: FrameSize
   resizeCallback: (values: ChatboxResizeValues) => void
+  onResizeComplete: (values: { width: number; height: number; position: { left: number; top: number } }) => void
 }): void {
   const resizeStart = useRef<ResizeStart | null>(null)
-  const [frameSize, setFrameSize] = useState({ width: 550, height: 250 })
+  const [frameSize, setFrameSize] = useState(o.initialFrameSize)
+
+  useEffect(() => {
+    setFrameSize(o.initialFrameSize)
+  }, [o.initialFrameSize.width, o.initialFrameSize.height])
 
   const beginResize = useCallback((event: PointerEvent<HTMLDivElement>, direction: ResizeDirection) => {
     if (event.button !== 0) return
@@ -86,22 +92,34 @@ export function useChatboxResize(o: {
       MINIMUM_HEIGHT,
       start.height + (start.direction.includes('top') ? -deltaY : start.direction.includes('bottom') ? deltaY : 0),
     )
+    const nextLeft = start.direction.includes('left')
+      ? start.widgetLeft + start.width - width
+      : start.widgetLeft
+    const nextTop = start.direction.includes('top')
+      ? start.widgetTop + start.height - height
+      : start.widgetTop
 
-    if (start.direction.includes('left')) {
-      widget.style.left = `${start.widgetLeft + start.width - width}px`
-    }
-    if (start.direction.includes('top')) {
-      widget.style.top = `${start.widgetTop + start.height - height}px`
-    }
+    widget.style.left = `${nextLeft}px`
+    widget.style.top = `${nextTop}px`
 
     setFrameSize({ width, height })
   }, [o.widgetRef])
 
   const finishResize = useCallback((event: PointerEvent<HTMLDivElement>) => {
-    if (resizeStart.current?.pointerId === event.pointerId) {
-      resizeStart.current = null
-    }
-  }, [])
+    if (resizeStart.current?.pointerId !== event.pointerId) return
+    resizeStart.current = null
+
+    const widget = o.widgetRef.current
+    if (!widget) return
+
+    const bounds = widget.getBoundingClientRect()
+    const frame = widget.firstElementChild?.getBoundingClientRect()
+    o.onResizeComplete({
+      width: frame?.width ?? frameSize.width,
+      height: frame?.height ?? frameSize.height,
+      position: { left: bounds.left, top: bounds.top },
+    })
+  }, [frameSize, o.onResizeComplete, o.widgetRef])
 
   useEffect(() => {
     o.resizeCallback({
