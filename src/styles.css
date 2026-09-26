@@ -42,4 +42,5 @@ button {
   position: absolute;
   width: fit-content;
   height: fit-content;
+  transition: opacity 160ms ease;
 }

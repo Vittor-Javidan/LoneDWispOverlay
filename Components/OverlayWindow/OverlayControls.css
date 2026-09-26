@@ -1,0 +1,30 @@
+.overlay-controls {
+  position: fixed;
+  z-index: 1000;
+  top: 12px;
+  right: 12px;
+  display: flex;
+  gap: 8px;
+}
+
+.overlay-controls__button {
+  min-height: 36px;
+  padding: 7px 12px;
+  border: 1px solid var(--widget-border);
+  border-radius: 4px;
+  background: var(--button-background);
+  color: var(--button-foreground);
+  font-size: 13px;
+  opacity: 0.82;
+  transition: border-color 0.2s ease, opacity 0.2s ease;
+}
+
+.overlay-root:not(.is-click-through) .overlay-controls__button:hover,
+.overlay-root:not(.is-click-through) .overlay-controls__button:focus-visible {
+  border-color: var(--widget-border-hover);
+  opacity: 1;
+}
+
+.overlay-controls__button[aria-pressed='true'] {
+  border-color: var(--widget-border-hover);
+}

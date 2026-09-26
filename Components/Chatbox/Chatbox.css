@@ -7,6 +7,10 @@
   touch-action: none;
 }
 
+.overlay-root.is-click-through.is-hover-hide-enabled .chatbox-widget:hover {
+  opacity: 0;
+}
+
 .chatbox__reference {
   position: relative;
   width: 550px;
@@ -40,7 +44,7 @@
   transition: opacity 0.2s ease;
 }
 
-.chatbox-widget:hover .chatbox__overlay {
+.overlay-root:not(.is-click-through) .chatbox-widget:hover .chatbox__overlay {
   border: 2px solid var(--widget-border-hover);
   opacity: 1;
 }
@@ -53,8 +57,8 @@
   transition: opacity 0.2s ease;
 }
 
-.chatbox-widget:hover .chatbox__controls,
-.chatbox-widget:focus-within .chatbox__controls {
+.overlay-root:not(.is-click-through) .chatbox-widget:hover .chatbox__controls,
+.overlay-root:not(.is-click-through) .chatbox-widget:focus-within .chatbox__controls {
   opacity: 1;
   pointer-events: auto;
 }
@@ -69,7 +73,7 @@
   transition: border-color 0.2s ease, opacity 0.2s ease;
 }
 
-.chatbox__button:hover:not(:disabled) {
+.overlay-root:not(.is-click-through) .chatbox__button:hover:not(:disabled) {
   border-color: var(--widget-border-hover);
 }
 
@@ -96,8 +100,8 @@
   transition: opacity 0.2s ease;
 }
 
-.chatbox-widget:hover .chatbox__resize-handle,
-.chatbox-widget:focus-within .chatbox__resize-handle {
+.overlay-root:not(.is-click-through) .chatbox-widget:hover .chatbox__resize-handle,
+.overlay-root:not(.is-click-through) .chatbox-widget:focus-within .chatbox__resize-handle {
   opacity: 1;
 }
 
