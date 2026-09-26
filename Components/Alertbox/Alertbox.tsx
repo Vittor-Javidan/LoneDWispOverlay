@@ -75,6 +75,7 @@ export default function Alertbox(props: {
           className={`alertbox__frame${props.preferences.isHidden ? ' is-hidden' : ''}`}
           src={alertboxUrl}
           title="Alertbox"
+          allow="autoplay"
           referrerPolicy="no-referrer"
         />
         <div className="alertbox__overlay">Alertbox</div>

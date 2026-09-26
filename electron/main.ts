@@ -4,6 +4,8 @@ import { Service_Server_Camera } from '../Components/Camera/Service_Server'
 import { Service_Server_Chatbox } from '../Components/Chatbox/Service_Server'
 import { Service_Server_OverlayWindow } from '../Components/OverlayWindow/Service_Server'
 
+app.commandLine.appendSwitch('autoplay-policy', 'no-user-gesture-required')
+
 app.whenReady().then(async () => {
 	await Service_Server_OverlayWindow.loadPreferences()
   await Service_Server_OverlayWindow.registerIntangibilityControls()
