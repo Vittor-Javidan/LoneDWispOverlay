@@ -6,6 +6,7 @@ declare global {
   interface Window {
     overlay: {
       getChatboxUrl: () => Promise<string>
+      getAlertboxUrl: () => Promise<string>
       getPreferences: () => Promise<OverlayPreferences>
       savePreferences: (preferences: OverlayPreferences) => Promise<void>
       setClickThrough: (isClickThrough: boolean) => Promise<void>

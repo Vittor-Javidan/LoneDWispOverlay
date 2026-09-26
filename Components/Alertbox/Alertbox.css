@@ -1,0 +1,161 @@
+.alertbox-widget {
+  top: 0;
+  left: 600px;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  touch-action: none;
+}
+
+.overlay-root.is-click-through.is-hover-hide-enabled .alertbox-widget:hover {
+  opacity: 0;
+}
+
+.alertbox__reference {
+  position: relative;
+  width: 550px;
+  height: 250px;
+  overflow: hidden;
+}
+
+.alertbox__frame {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  opacity: 1;
+  transition: opacity 0.5s linear;
+}
+
+.alertbox__frame.is-hidden {
+  opacity: 0;
+}
+
+.alertbox__overlay {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  opacity: 0;
+  color: var(--widget-border-hover);
+  font-size: 40px;
+  cursor: move;
+  transition: opacity 0.2s ease;
+}
+
+.overlay-root:not(.is-click-through) .alertbox-widget:hover .alertbox__overlay {
+  border: 2px solid var(--widget-border-hover);
+  opacity: 1;
+}
+
+.alertbox__controls {
+  width: 250px;
+  margin-top: 8px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+
+.overlay-root:not(.is-click-through) .alertbox-widget:hover .alertbox__controls,
+.overlay-root:not(.is-click-through) .alertbox-widget:focus-within .alertbox__controls {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.alertbox__button {
+  min-width: 64px;
+  padding: 5px 8px;
+  border: 2px solid var(--widget-border);
+  border-radius: 5px;
+  background: var(--button-background);
+  color: var(--button-foreground);
+  transition: border-color 0.2s ease, opacity 0.2s ease;
+}
+
+.overlay-root:not(.is-click-through) .alertbox__button:hover:not(:disabled) {
+  border-color: var(--widget-border-hover);
+}
+
+.alertbox__hide-button {
+  width: 100%;
+}
+
+.alertbox__resize-handle {
+  position: absolute;
+  z-index: 2;
+  background: var(--transparent);
+  opacity: 0;
+  touch-action: none;
+  transition: opacity 0.2s ease;
+}
+
+.overlay-root:not(.is-click-through) .alertbox-widget:hover .alertbox__resize-handle,
+.overlay-root:not(.is-click-through) .alertbox-widget:focus-within .alertbox__resize-handle {
+  opacity: 1;
+}
+
+.alertbox__resize-handle--top,
+.alertbox__resize-handle--bottom {
+  right: 8px;
+  left: 8px;
+  height: 8px;
+  cursor: ns-resize;
+}
+
+.alertbox__resize-handle--top {
+  top: 0;
+}
+
+.alertbox__resize-handle--bottom {
+  bottom: 0;
+}
+
+.alertbox__resize-handle--left,
+.alertbox__resize-handle--right {
+  top: 8px;
+  bottom: 8px;
+  width: 8px;
+  cursor: ew-resize;
+}
+
+.alertbox__resize-handle--left {
+  left: 0;
+}
+
+.alertbox__resize-handle--right {
+  right: 0;
+}
+
+.alertbox__resize-handle--top-left,
+.alertbox__resize-handle--top-right,
+.alertbox__resize-handle--bottom-left,
+.alertbox__resize-handle--bottom-right {
+  z-index: 3;
+  width: 12px;
+  height: 12px;
+}
+
+.alertbox__resize-handle--top-left {
+  top: 0;
+  left: 0;
+  cursor: nwse-resize;
+}
+
+.alertbox__resize-handle--top-right {
+  top: 0;
+  right: 0;
+  cursor: nesw-resize;
+}
+
+.alertbox__resize-handle--bottom-left {
+  bottom: 0;
+  left: 0;
+  cursor: nesw-resize;
+}
+
+.alertbox__resize-handle--bottom-right {
+  right: 0;
+  bottom: 0;
+  cursor: nwse-resize;
+}

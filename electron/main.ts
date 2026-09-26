@@ -1,4 +1,5 @@
 import { app } from 'electron'
+import { Service_Server_Alertbox } from '../Components/Alertbox/Service_Server'
 import { Service_Server_Camera } from '../Components/Camera/Service_Server'
 import { Service_Server_Chatbox } from '../Components/Chatbox/Service_Server'
 import { Service_Server_OverlayWindow } from '../Components/OverlayWindow/Service_Server'
@@ -7,6 +8,7 @@ app.whenReady().then(async () => {
 	await Service_Server_OverlayWindow.loadPreferences()
   await Service_Server_OverlayWindow.registerIntangibilityControls()
   Service_Server_Chatbox.registerChatboxIpcHandler()
+  Service_Server_Alertbox.registerAlertboxIpcHandler()
   await Service_Server_Camera.loadCameraPermission()
   await Service_Server_OverlayWindow.createWindow()
 })

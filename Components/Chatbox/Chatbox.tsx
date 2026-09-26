@@ -3,9 +3,9 @@ import './Chatbox.css'
 
 import { useDraggable, type DraggableHandlers } from '../../src/hooks/useDraggable'
 import type { ChatboxPreferences, WidgetPosition } from '../OverlayWindow/OverlayPreferences'
+import { resizeDirections, useWidgetResize, type WidgetResizeValues } from '../../src/hooks/useWidgetResize'
 
 import { useChatboxUrl } from './useChatboxUrl'
-import { resizeDirections, useChatboxResize, type ChatboxResizeValues } from './useChatboxResize'
 
 export default function Chatbox(props: {
   preferences: ChatboxPreferences
@@ -16,7 +16,7 @@ export default function Chatbox(props: {
   
   const widgetRef = useRef<HTMLElement>(null)
   const [dragHandlers, setDragHandlers] = useState<DraggableHandlers<HTMLElement> | null>(null)
-  const [resizeValues, setResizeValues] = useState<ChatboxResizeValues | null>(null)
+  const [resizeValues, setResizeValues] = useState<WidgetResizeValues | null>(null)
   const [chatboxUrl  , setChatboxUrl  ] = useState('')
 
   const handlePositionChange = useCallback((position: WidgetPosition) => {
@@ -38,7 +38,7 @@ export default function Chatbox(props: {
 
   useChatboxUrl({ onUrlLoaded: setChatboxUrl })
 
-  useChatboxResize({
+  useWidgetResize({
     widgetRef,
     initialFrameSize: {
       width: props.preferences.width,

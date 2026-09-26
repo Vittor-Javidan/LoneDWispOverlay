@@ -32,17 +32,17 @@ type FrameSize = {
 const MINIMUM_WIDTH = 250
 const MINIMUM_HEIGHT = 120
 
-export type ChatboxResizeValues = {
+export type WidgetResizeValues = {
   frameSize: FrameSize
   beginResize: (event: PointerEvent<HTMLDivElement>, direction: ResizeDirection) => void
   handlePointerMove: (event: PointerEvent<HTMLDivElement>) => void
   finishResize: (event: PointerEvent<HTMLDivElement>) => void
 }
 
-export function useChatboxResize(o: {
+export function useWidgetResize(o: {
   widgetRef: RefObject<HTMLElement | null>
   initialFrameSize: FrameSize
-  resizeCallback: (values: ChatboxResizeValues) => void
+  resizeCallback: (values: WidgetResizeValues) => void
   onResizeComplete: (values: { width: number; height: number; position: { left: number; top: number } }) => void
 }): void {
   const resizeStart = useRef<ResizeStart | null>(null)

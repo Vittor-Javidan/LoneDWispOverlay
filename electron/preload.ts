@@ -3,6 +3,7 @@ import type { OverlayPreferences } from '../Components/OverlayWindow/OverlayPref
 
 contextBridge.exposeInMainWorld('overlay', {
   getChatboxUrl: (): Promise<string> => ipcRenderer.invoke('overlay:get-chatbox-url'),
+  getAlertboxUrl: (): Promise<string> => ipcRenderer.invoke('overlay:get-alertbox-url'),
   getPreferences: (): Promise<OverlayPreferences> => ipcRenderer.invoke('overlay:get-preferences'),
   savePreferences: (preferences: OverlayPreferences): Promise<void> =>
     ipcRenderer.invoke('overlay:save-preferences', preferences),

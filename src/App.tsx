@@ -1,36 +1,41 @@
 import { useCallback, useRef, useState } from 'react'
 
+import Alertbox from '../Components/Alertbox/Alertbox'
 import Camera from '../Components/Camera/Camera'
 import Chatbox from '../Components/Chatbox/Chatbox'
 import OverlayControls from '../Components/OverlayWindow/OverlayControls'
 import {
   createDefaultOverlayPreferences,
+  type AlertboxPreferences,
   type CameraPreferences,
   type ChatboxPreferences,
   type OverlayPreferences,
 } from '../Components/OverlayWindow/OverlayPreferences'
-import { useOverlayClickThrough } from '../Components/OverlayWindow/useOverlayClickThrough'
-import { useOverlayPreferences } from '../Components/OverlayWindow/useOverlayPreferences'
+import { useOverlayClickThrough } from './hooks/useOverlayClickThrough'
+import { useOverlayPreferences } from './hooks/useOverlayPreferences'
 
 type OverlayPreferencesPatch = {
   isHoverHideEnabled?: boolean
+  alertbox?: Partial<AlertboxPreferences>
   camera?: Partial<CameraPreferences>
   chatbox?: Partial<ChatboxPreferences>
 }
 
 export default function App() {
-  const [isClickThrough, setIsClickThrough] = useState(false)
-  const [preferences, setPreferences] = useState<OverlayPreferences | null>(null)
+
   const preferencesRef = useRef<OverlayPreferences | null>(null)
+  const savePreferencesRef = useRef<((preferences: OverlayPreferences) => void) | null>(null)
+  const [isClickThrough, setIsClickThrough] = useState(false)
+  const [preferences   , setPreferences   ] = useState<OverlayPreferences | null>(null)
 
   const handlePreferencesLoaded = useCallback((loadedPreferences: OverlayPreferences) => {
     preferencesRef.current = loadedPreferences
     setPreferences(loadedPreferences)
   }, [])
 
-  const { savePreferences } = useOverlayPreferences({
-    onPreferencesLoaded: handlePreferencesLoaded,
-  })
+  const handleSavePreferencesReady = useCallback((savePreferences: (preferences: OverlayPreferences) => void) => {
+    savePreferencesRef.current = savePreferences
+  }, [])
 
   const updatePreferences = useCallback((patch: OverlayPreferencesPatch) => {
     const current = preferencesRef.current
@@ -38,30 +43,19 @@ export default function App() {
 
     const next: OverlayPreferences = {
       isHoverHideEnabled: patch.isHoverHideEnabled ?? current.isHoverHideEnabled,
+      alertbox: { ...current.alertbox, ...patch.alertbox },
       camera: { ...current.camera, ...patch.camera },
       chatbox: { ...current.chatbox, ...patch.chatbox },
     }
 
     preferencesRef.current = next
     setPreferences(next)
-    savePreferences(next)
-  }, [savePreferences])
-
-  const updateCameraPreferences = useCallback((patch: Partial<CameraPreferences>) => {
-    updatePreferences({ camera: patch })
-  }, [updatePreferences])
-
-  const updateChatboxPreferences = useCallback((patch: Partial<ChatboxPreferences>) => {
-    updatePreferences({ chatbox: patch })
-  }, [updatePreferences])
+    savePreferencesRef.current?.(next)
+  }, [])
 
   const toggleHoverHide = useCallback(() => {
     const current = preferencesRef.current
     if (current) updatePreferences({ isHoverHideEnabled: !current.isHoverHideEnabled })
-  }, [updatePreferences])
-
-  const resetWidgets = useCallback(() => {
-    updatePreferences(createDefaultOverlayPreferences())
   }, [updatePreferences])
 
   const makeClickThrough = useCallback(() => {
@@ -70,6 +64,11 @@ export default function App() {
   }, [])
 
   useOverlayClickThrough({ onClickThroughChanged: setIsClickThrough })
+
+  useOverlayPreferences({
+    onPreferencesLoaded: handlePreferencesLoaded,
+    onSavePreferencesReady: handleSavePreferencesReady,
+  })
 
   if (!preferences) return null
 
@@ -82,16 +81,20 @@ export default function App() {
           isHoverHideEnabled={preferences.isHoverHideEnabled}
           onToggleHoverHide={toggleHoverHide}
           onMakeClickThrough={makeClickThrough}
-          onResetWidgets={resetWidgets}
+          onResetWidgets={() => updatePreferences(createDefaultOverlayPreferences())}
         />
       )}
+      <Alertbox
+        preferences={preferences.alertbox}
+        onPreferencesChanged={(patch) => updatePreferences({ alertbox: patch })}
+      />
       <Chatbox
         preferences={preferences.chatbox}
-        onPreferencesChanged={updateChatboxPreferences}
+        onPreferencesChanged={(patch) => updatePreferences({ chatbox: patch })}
       />
       <Camera
         preferences={preferences.camera}
-        onPreferencesChanged={updateCameraPreferences}
+        onPreferencesChanged={(patch) => updatePreferences({ camera: patch })}
       />
     </main>
   )

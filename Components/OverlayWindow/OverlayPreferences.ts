@@ -18,8 +18,16 @@ export type ChatboxPreferences = {
   contentScalePercent: number
 }
 
+export type AlertboxPreferences = {
+  position: WidgetPosition
+  width: number
+  height: number
+  isHidden: boolean
+}
+
 export type OverlayPreferences = {
   isHoverHideEnabled: boolean
+  alertbox: AlertboxPreferences
   camera: CameraPreferences
   chatbox: ChatboxPreferences
 }
@@ -63,6 +71,12 @@ export function createDefaultOverlayPreferences(): OverlayPreferences {
       isHidden: false,
       contentScalePercent: 100,
     },
+    alertbox: {
+      position: { left: 600, top: 0 },
+      width: 550,
+      height: 250,
+      isHidden: false,
+    },
   }
 }
 
@@ -71,6 +85,7 @@ export function normalizeOverlayPreferences(value: unknown): OverlayPreferences 
   const defaults = createDefaultOverlayPreferences()
   const camera = asRecord(source.camera)
   const chatbox = asRecord(source.chatbox)
+  const alertbox = asRecord(source.alertbox)
   const scale = readNumber(
     chatbox.contentScalePercent,
     defaults.chatbox.contentScalePercent,
@@ -92,6 +107,12 @@ export function normalizeOverlayPreferences(value: unknown): OverlayPreferences 
       height: readNumber(chatbox.height, defaults.chatbox.height, 120, 4096),
       isHidden: readBoolean(chatbox.isHidden, defaults.chatbox.isHidden),
       contentScalePercent: Math.min(200, Math.max(50, Math.round(scale / 10) * 10)),
+    },
+    alertbox: {
+      position: normalizePosition(alertbox.position, defaults.alertbox.position),
+      width: readNumber(alertbox.width, defaults.alertbox.width, 250, 4096),
+      height: readNumber(alertbox.height, defaults.alertbox.height, 120, 4096),
+      isHidden: readBoolean(alertbox.isHidden, defaults.alertbox.isHidden),
     },
   }
 }
