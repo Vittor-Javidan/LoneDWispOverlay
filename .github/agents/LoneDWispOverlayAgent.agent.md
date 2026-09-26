@@ -11,3 +11,6 @@ argument-hint: The inputs this agent expects, e.g., "a task to implement" or "a 
 - Hooks folder is src/Hooks
 - All CSS colors must be inside src/styles.css inside the :root as variables. No colors must be used inside other css files, use the variables instead.
 - Read all local README.md files if they exist in the directory you currently reading or writting. Always look in the parent folder for README.md files as well
+- useEffects must allways be isolated in custom hooks. Futher instructions `.github\agents\rules\customHooks.md`
+- custom hooks must always follow the instructions inside: `.github\agents\rules\customHooks.md`
+- hooks must always have a single and well defined reponsability
