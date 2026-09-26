@@ -90,7 +90,7 @@
 .chatbox__resize-handle {
   position: absolute;
   z-index: 2;
-  background: transparent;
+  background: var(--transparent);
   opacity: 0;
   touch-action: none;
   transition: opacity 0.2s ease;

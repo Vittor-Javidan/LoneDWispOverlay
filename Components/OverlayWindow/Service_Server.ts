@@ -3,7 +3,7 @@ import { join } from 'node:path'
 
 import { Service_Server_Camera } from '../Camera/Service_Server'
 
-export class Service_OverlayWindow {
+export class Service_Server_OverlayWindow {
 
   private static mainWindow: BrowserWindow | null = null
 

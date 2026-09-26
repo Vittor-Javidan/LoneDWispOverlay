@@ -1,7 +1,7 @@
 import { app, ipcMain } from 'electron'
 import { join } from 'node:path'
 
-export class Service_Chatbox {
+export class Service_Server_Chatbox {
 
   static registerChatboxIpcHandler(): void {
 

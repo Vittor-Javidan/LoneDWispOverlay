@@ -7,6 +7,7 @@
 }
 
 :root {
+  --transparent: transparent;
   --widget-border: rgba(15, 15, 15, 0.5);
   --widget-border-hover: rgba(255, 0, 238, 0.5);
   --widget-shadow: rgb(2, 4, 24);
@@ -23,7 +24,7 @@ body,
 }
 
 body {
-  background: transparent;
+  background: var(--transparent);
   font-family: Arial, sans-serif;
 }
 

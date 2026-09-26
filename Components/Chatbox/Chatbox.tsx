@@ -1,120 +1,33 @@
-import { useEffect, useState } from 'react'
-import { useRef, type PointerEvent } from 'react'
-import { useDraggable } from '../../src/hooks/useDraggable'
+import { useState } from 'react'
 import './Chatbox.css'
 
-const resizeDirections = [
-  'top',
-  'top-right',
-  'right',
-  'bottom-right',
-  'bottom',
-  'bottom-left',
-  'left',
-  'top-left',
-] as const
+import { useDraggable } from '../../src/hooks/useDraggable'
 
-type ResizeDirection = (typeof resizeDirections)[number]
-
-type ResizeStart = {
-  pointerId: number
-  direction: ResizeDirection
-  clientX: number
-  clientY: number
-  widgetLeft: number
-  widgetTop: number
-  width: number
-  height: number
-}
-
-const minimumWidth = 250
-const minimumHeight = 120
+import { useChatboxUrl } from './useChatboxUrl'
+import { resizeDirections, useChatboxResize, type ChatboxResizeValues } from './useChatboxResize'
 
 export default function Chatbox() {
   const dragHandlers = useDraggable<HTMLElement>()
-  const resizeStart = useRef<ResizeStart | null>(null)
-  const [chatboxUrl, setChatboxUrl] = useState('')
-  const [isHidden, setIsHidden] = useState(false)
-  const [frameSize, setFrameSize] = useState({ width: 550, height: 250 })
+
+  const [resizeValues       , setResizeValues       ] = useState<ChatboxResizeValues | null>(null)
+  const [chatboxUrl         , setChatboxUrl         ] = useState('')
+  const [isHidden           , setIsHidden           ] = useState(false)
   const [contentScalePercent, setContentScalePercent] = useState(100)
+
   const contentScale = contentScalePercent / 100
 
-  const beginResize = (event: PointerEvent<HTMLDivElement>, direction: ResizeDirection) => {
-    if (event.button !== 0) return
+  useChatboxUrl({ onUrlLoaded: setChatboxUrl })
 
-    const widget = dragHandlers.ref.current
-    const reference = event.currentTarget.parentElement
-    if (!widget || !reference) return
-
-    const widgetBounds = widget.getBoundingClientRect()
-    const referenceBounds = reference.getBoundingClientRect()
-    resizeStart.current = {
-      pointerId: event.pointerId,
-      direction,
-      clientX: event.clientX,
-      clientY: event.clientY,
-      widgetLeft: widgetBounds.left,
-      widgetTop: widgetBounds.top,
-      width: referenceBounds.width,
-      height: referenceBounds.height,
-    }
-
-    event.preventDefault()
-    event.stopPropagation()
-    event.currentTarget.setPointerCapture(event.pointerId)
-  }
-
-  const resize = (event: PointerEvent<HTMLDivElement>) => {
-    const start = resizeStart.current
-    const widget = dragHandlers.ref.current
-    if (!start || !widget || start.pointerId !== event.pointerId) return
-
-    const deltaX = event.clientX - start.clientX
-    const deltaY = event.clientY - start.clientY
-    const width = Math.max(
-      minimumWidth,
-      start.width + (start.direction.includes('left') ? -deltaX : start.direction.includes('right') ? deltaX : 0),
-    )
-    const height = Math.max(
-      minimumHeight,
-      start.height + (start.direction.includes('top') ? -deltaY : start.direction.includes('bottom') ? deltaY : 0),
-    )
-
-    if (start.direction.includes('left')) {
-      widget.style.left = `${start.widgetLeft + start.width - width}px`
-    }
-    if (start.direction.includes('top')) {
-      widget.style.top = `${start.widgetTop + start.height - height}px`
-    }
-
-    setFrameSize({ width, height })
-  }
-
-  const finishResize = (event: PointerEvent<HTMLDivElement>) => {
-    if (resizeStart.current?.pointerId === event.pointerId) {
-      resizeStart.current = null
-    }
-  }
-
-  useEffect(() => {
-    let isMounted = true
-
-    void window.overlay.getChatboxUrl().then((url) => {
-      if (isMounted) setChatboxUrl(url)
-    }).catch((error: unknown) => {
-      console.error('Unable to load the chatbox URL:', error)
-    })
-
-    return () => {
-      isMounted = false
-    }
-  }, [])
+  useChatboxResize({
+    widgetRef: dragHandlers.ref,
+    resizeCallback: setResizeValues,
+  })
 
   return (
     <section className="widget chatbox-widget" {...dragHandlers} aria-label="Chatbox">
       <div
         className="chatbox__reference"
-        style={{ width: frameSize.width, height: frameSize.height }}
+        style={resizeValues?.frameSize}
       >
         <iframe
           className={`chatbox__frame${isHidden ? ' is-hidden' : ''}`}
@@ -134,10 +47,10 @@ export default function Chatbox() {
             key={direction}
             className={`chatbox__resize-handle chatbox__resize-handle--${direction}`}
             aria-hidden="true"
-            onPointerDown={(event) => beginResize(event, direction)}
-            onPointerMove={resize}
-            onPointerUp={finishResize}
-            onPointerCancel={finishResize}
+            onPointerDown={(event) => resizeValues?.beginResize(event, direction)}
+            onPointerMove={resizeValues?.handlePointerMove}
+            onPointerUp={resizeValues?.finishResize}
+            onPointerCancel={resizeValues?.finishResize}
           />
         ))}
       </div>
