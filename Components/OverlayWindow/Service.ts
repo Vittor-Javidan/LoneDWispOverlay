@@ -1,7 +1,7 @@
 import { BrowserWindow, screen } from 'electron'
 import { join } from 'node:path'
 
-import { Service_Camera } from '../Camera/Service'
+import { Service_Server_Camera } from '../Camera/Service_Server'
 
 export class Service_OverlayWindow {
 
@@ -24,7 +24,7 @@ export class Service_OverlayWindow {
 		})
 
 		this.mainWindow = window
-		Service_Camera.registerCameraPermissionHandler(window)
+		Service_Server_Camera.registerCameraPermissionHandler(window)
 
 		const rendererUrl = process.env.ELECTRON_RENDERER_URL
 		if (rendererUrl) {

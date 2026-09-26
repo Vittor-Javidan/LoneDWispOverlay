@@ -2,7 +2,7 @@ import { app, dialog, type BrowserWindow } from 'electron'
 import { promises as fs } from 'node:fs'
 import { dirname, join } from 'node:path'
 
-export class Service_Camera {
+export class Service_Server_Camera {
 
   private static cameraPermissionGranted = false
   private static cameraPermissionFile = ''
@@ -77,4 +77,5 @@ export class Service_Camera {
       },
     )
   }
+
 }

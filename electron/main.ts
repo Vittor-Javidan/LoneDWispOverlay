@@ -1,16 +1,16 @@
 import { app } from 'electron'
-import { Service_Camera } from '../Components/Camera/Service'
+import { Service_Server_Camera } from '../Components/Camera/Service_Server'
 import { Service_Chatbox } from '../Components/Chatbox/Service'
 import { Service_OverlayWindow } from '../Components/OverlayWindow/Service'
 
 app.whenReady().then(async () => {
   Service_Chatbox.registerChatboxIpcHandler()
-  await Service_Camera.loadCameraPermission()
+  await Service_Server_Camera.loadCameraPermission()
   await Service_OverlayWindow.createWindow()
 })
 
 app.on('activate', () => {
-  if (!Service_OverlayWindow.hasWindow() && Service_Camera.isCameraPermissionInitialized()) {
+  if (!Service_OverlayWindow.hasWindow() && Service_Server_Camera.isCameraPermissionInitialized()) {
     void Service_OverlayWindow.createWindow()
   }
 })
