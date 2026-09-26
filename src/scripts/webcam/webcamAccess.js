@@ -1,7 +1,7 @@
 let webcam = document.getElementById('webcam');
 let webcamContainer = document.getElementById('webcam-container')
 
-if(navigator.mediaDevices.getUserMedia) {
+if (webcam && navigator.mediaDevices?.getUserMedia) {
 	navigator.mediaDevices.getUserMedia({
 		video: { width:500, height: 500 }
 	}).then(function (stream) {
@@ -10,7 +10,7 @@ if(navigator.mediaDevices.getUserMedia) {
 		console.log('something went wrong') 
 		console.log(error)
 	})
-} else {
+} else if (webcam) {
 	console.log('getUserMedia not supported!')
 }
 

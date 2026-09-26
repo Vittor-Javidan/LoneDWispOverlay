@@ -1,3 +1,3 @@
-import createWindow from "./window"
+const createWindow = require("./window")
 
 createWindow()

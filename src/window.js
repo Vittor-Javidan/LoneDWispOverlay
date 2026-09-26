@@ -1,4 +1,4 @@
-import { app, BrowserWindow, screen } from 'electron';
+const { app, BrowserWindow, screen } = require('electron');
 
 //OVERLAY ==========================================================================
 /* 
@@ -16,7 +16,7 @@ import { app, BrowserWindow, screen } from 'electron';
  * 
  * @returns {void}
  */
-export default function createWindow() {
+function createWindow() {
 
     let myWindow
 
@@ -41,4 +41,6 @@ export default function createWindow() {
         myWindow.loadURL(`${__dirname}/overlay.html`) 
     })
 }
+
+module.exports = createWindow;
 
