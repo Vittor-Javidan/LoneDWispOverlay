@@ -48,6 +48,7 @@ export default function Camera() {
             aria-label="Camera preview"
           />
         </div>
+        <div className="camera__overlay" aria-hidden="true">Camera</div>
       </div>
       <div className="camera__controls">
         <div className="camera__control-row">

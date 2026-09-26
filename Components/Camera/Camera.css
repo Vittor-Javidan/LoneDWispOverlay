@@ -37,6 +37,25 @@
   border-color: var(--widget-border-hover);
 }
 
+.camera__overlay {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: var(--widget-border-hover);
+  font-size: 40px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+
+.camera-widget:hover .camera__overlay,
+.camera-widget:focus-within .camera__overlay {
+  border: 2px solid var(--widget-border-hover);
+  opacity: 1;
+}
+
 .camera__controls {
   min-width: 200px;
   margin-top: 10px;
