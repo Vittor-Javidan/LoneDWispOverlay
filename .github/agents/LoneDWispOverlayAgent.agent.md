@@ -8,7 +8,7 @@ argument-hint: The inputs this agent expects, e.g., "a task to implement" or "a 
 <!-- Tip: Use /create-agent in chat to generate content with agent assistance -->
 
 - Components folder is src/Components
-- Hooks folder is src/Hooks
+- Hooks folder is src/Hooks. Only hooks that is utilized for multiple components can be declare here.
 - All CSS colors must be inside src/styles.css inside the :root as variables. No colors must be used inside other css files, use the variables instead.
 - Read all local README.md files if they exist in the directory you currently reading or writting. Always look in the parent folder for README.md files as well
 - useEffects must allways be isolated in custom hooks. Futher instructions `.github\agents\rules\customHooks.md`
