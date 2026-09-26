@@ -14,3 +14,5 @@ argument-hint: The inputs this agent expects, e.g., "a task to implement" or "a 
 - useEffects must allways be isolated in custom hooks. Futher instructions `.github\agents\rules\customHooks.md`
 - custom hooks must always follow the instructions inside: `.github\agents\rules\customHooks.md`
 - hooks must always have a single and well defined reponsability
+- functions inside React components that has more than 2 lines of code, must be isolated inside of a useCallback
+- functions inside React components that has only one line of code, can be declare direclty as anymous function inside the JSX
