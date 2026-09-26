@@ -2,6 +2,13 @@ const { app, BrowserWindow, dialog, screen } = require('electron');
 const fs = require('node:fs/promises');
 const path = require('node:path');
 
+process.loadEnvFile(path.join(__dirname, '..', '.env'));
+const chatboxUrl = process.env.ENV_URL_CHATBOX_STREAMLABS;
+
+if (!chatboxUrl) {
+    throw new Error('ENV_URL_CHATBOX_STREAMLABS must be set in .env');
+}
+
 //OVERLAY ==========================================================================
 /* 
     to make this overlay worth it, you need the "see through windows" open source application, by MOBZystem: https://www.mobzystems.com/tools/seethroughwindows.aspx
@@ -96,6 +103,12 @@ function createWindow() {
                 }).catch(() => callback(false));
             }
         );
+
+        myWindow.webContents.once('dom-ready', () => {
+            myWindow.webContents.executeJavaScript(
+                `document.getElementById('chatbox').src = ${JSON.stringify(chatboxUrl)}`
+            );
+        });
     
         /**
          * Use your html url here, it can be a overlay link from streamelements
