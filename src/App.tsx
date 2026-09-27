@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 import Alertbox from '../Components/Alertbox/Alertbox'
 import Camera from '../Components/Camera/Camera'
@@ -58,10 +58,30 @@ export default function App() {
     if (current) updatePreferences({ isHoverHideEnabled: !current.isHoverHideEnabled })
   }, [updatePreferences])
 
+  const toggleWidgetsVisibility = useCallback(() => {
+    const current = preferencesRef.current
+    if (!current) return
+
+    const areAllWidgetsHidden =
+      current.alertbox.isHidden && current.camera.isHidden && current.chatbox.isHidden
+    const shouldHideWidgets = !areAllWidgetsHidden
+
+    updatePreferences({
+      alertbox: { isHidden: shouldHideWidgets },
+      camera: { isHidden: shouldHideWidgets },
+      chatbox: { isHidden: shouldHideWidgets },
+    })
+  }, [updatePreferences])
+
   const makeClickThrough = useCallback(() => {
     setIsClickThrough(true)
     void window.overlay.setClickThrough(true).catch(() => setIsClickThrough(false))
   }, [])
+
+  useEffect(
+    () => window.overlay.onToggleWidgetsVisibility(toggleWidgetsVisibility),
+    [toggleWidgetsVisibility],
+  )
 
   useOverlayClickThrough({ onClickThroughChanged: setIsClickThrough })
 

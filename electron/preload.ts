@@ -17,4 +17,11 @@ contextBridge.exposeInMainWorld('overlay', {
       ipcRenderer.removeListener('overlay:click-through-changed', listener)
     }
   },
+  onToggleWidgetsVisibility: (callback: () => void): (() => void) => {
+    const listener = (): void => callback()
+    ipcRenderer.on('overlay:toggle-widgets-visibility', listener)
+    return () => {
+      ipcRenderer.removeListener('overlay:toggle-widgets-visibility', listener)
+    }
+  },
 })

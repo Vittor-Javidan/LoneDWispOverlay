@@ -63,12 +63,22 @@ export class Service_Server_OverlayWindow {
 		ipcMain.handle('overlay:save-preferences', (_event, preferences: unknown) =>
 			this.savePreferences(preferences),
 		)
-		const shortcutRegistered = globalShortcut.register('Control+Shift+Alt+O', () => {
+		const shortcut_RemoveIntangibility = globalShortcut.register('Control+Shift+Alt+O', () => {
 			this.setClickThrough(false)
 		})
 
-		if (!shortcutRegistered) {
+		if (!shortcut_RemoveIntangibility) {
 			console.warn('Could not register the Ctrl+Shift+Alt+O overlay shortcut')
+		}
+		const shortcut_ToggleVisibility = globalShortcut.register('Control+Shift+Alt+H', () => {
+			const window = this.mainWindow
+			if (!window || window.isDestroyed()) return
+
+			window.webContents.send('overlay:toggle-widgets-visibility')
+		})
+
+		if (!shortcut_ToggleVisibility) {
+			console.warn('Could not register the Ctrl+Shift+Alt+H widgets visibility shortcut')
 		}
 	}
 

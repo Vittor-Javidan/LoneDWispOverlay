@@ -12,6 +12,7 @@ declare global {
       setClickThrough: (isClickThrough: boolean) => Promise<void>
       getClickThrough: () => Promise<boolean>
       onClickThroughChanged: (callback: (isClickThrough: boolean) => void) => () => void
+      onToggleWidgetsVisibility: (callback: () => void) => () => void
     }
   }
 }
