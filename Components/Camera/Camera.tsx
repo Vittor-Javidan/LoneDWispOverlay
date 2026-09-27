@@ -6,6 +6,7 @@ import type { CameraPreferences, WidgetPosition } from '../OverlayWindow/Overlay
 
 import { useCameraResize, type CameraResizeValues } from './useCameraResize'
 import { useCameraStream } from './useCameraStream'
+import { useCameraVisibility } from './useCameraVisibility'
 
 export default function Camera(props: {
   preferences: CameraPreferences
@@ -14,8 +15,12 @@ export default function Camera(props: {
 
   const videoRef  = useRef<HTMLVideoElement>(null)
   const widgetRef = useRef<HTMLElement>(null)
-  const [dragHandlers, setDragHandlers] = useState<DraggableHandlers<HTMLElement> | null>(null)
-  const [resizeValues, setResizeValues] = useState<CameraResizeValues | null>(null)
+  const frameRef  = useRef<HTMLDivElement>(null)
+
+  const [dragHandlers   , setDragHandlers   ] = useState<DraggableHandlers<HTMLElement> | null>(null)
+  const [resizeValues   , setResizeValues   ] = useState<CameraResizeValues | null>(null)
+  const [isStreamReady  , setIsStreamReady  ] = useState(false)
+  const [isCameraEnabled, setIsCameraEnabled] = useState(() => !props.preferences.isHidden)
 
   const handlePositionChange = useCallback((position: WidgetPosition) => {
     props.onPreferencesChanged({ position })
@@ -28,8 +33,17 @@ export default function Camera(props: {
     props.onPreferencesChanged({ size: values.size, position: values.position })
   }, [props.onPreferencesChanged])
 
+  useCameraStream({
+    videoRef,
+    enabled: isCameraEnabled,
+    onReadyChanged: setIsStreamReady,
+  })
 
-  useCameraStream({ videoRef })
+  useCameraVisibility({
+    frameRef,
+    isHidden: props.preferences.isHidden,
+    onCameraEnabledChanged: setIsCameraEnabled,
+  })
 
   useCameraResize({
     widgetRef,
@@ -68,7 +82,8 @@ export default function Camera(props: {
         onPointerCancel={resizeValues?.finishResize}
       >
         <div
-          className={`camera__frame${props.preferences.isInverted ? ' is-inverted' : ''}${props.preferences.isHidden ? ' is-hidden' : ''}`}
+          ref={frameRef}
+          className={`camera__frame${props.preferences.isInverted ? ' is-inverted' : ''}${props.preferences.isHidden || !isStreamReady ? ' is-hidden' : ''}`}
         >
           <video
             ref={videoRef}

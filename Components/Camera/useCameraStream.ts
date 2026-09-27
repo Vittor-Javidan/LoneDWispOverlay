@@ -2,12 +2,25 @@ import { useEffect, type RefObject } from 'react'
 
 export function useCameraStream(o: {
   videoRef: RefObject<HTMLVideoElement | null>
+  enabled: boolean
+  onReadyChanged: (isReady: boolean) => void
 }): void {
 
   useEffect(() => {
+    const video = o.videoRef.current
+
+    if (!o.enabled) {
+      o.onReadyChanged(false)
+      if (video) video.srcObject = null
+      return
+    }
 
     let stream: MediaStream | null = null
     let isMounted = true
+    const handlePlaying = () => o.onReadyChanged(true)
+
+    o.onReadyChanged(false)
+    video?.addEventListener('playing', handlePlaying)
 
     const startCamera = async () => {
       if (!navigator.mediaDevices?.getUserMedia) {
@@ -26,7 +39,7 @@ export function useCameraStream(o: {
         }
 
         stream = cameraStream
-        if (o.videoRef.current) o.videoRef.current.srcObject = cameraStream
+        if (video) video.srcObject = cameraStream
       } catch (error) {
         console.error('Unable to access the camera:', error)
 
@@ -46,8 +59,10 @@ export function useCameraStream(o: {
 
     return () => {
       isMounted = false
+      video?.removeEventListener('playing', handlePlaying)
+      if (video?.srcObject === stream) video.srcObject = null
       stream?.getTracks().forEach((track) => track.stop())
     }
 
-  }, [o.videoRef])
+  }, [o.enabled, o.onReadyChanged, o.videoRef])
 }
